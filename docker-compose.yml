@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: pod16
+      POSTGRES_USER: pod16
+      POSTGRES_PASSWORD: pod16
+    ports:
+      - "5432:5432"
+    volumes:
+      - pod16_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pod16 -d pod16"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pod16_pgdata:
