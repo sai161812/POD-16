@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://pod16:pod16@localhost:5432/pod16"
     bootstrap_api_key: str = "change-me-before-deployment"
     log_level: str = "INFO"
+    timezone: str = "Asia/Kolkata"
 
     model_config = SettingsConfigDict(
         env_file=".env",

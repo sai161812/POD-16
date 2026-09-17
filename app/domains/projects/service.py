@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
+from app.domains.projects.enums import ProjectStatus
 from app.domains.projects.model import Project
 from app.domains.projects.repository import ProjectRepository
 from app.domains.projects.schemas import ProjectCreate, ProjectUpdate
@@ -72,6 +73,15 @@ class ProjectService:
 
         for field, value in changes.items():
             setattr(project, field, value)
+
+        if "status" in changes:
+            if project.status == ProjectStatus.COMPLETED:
+                project.progress_percent = 100
+                project.completed_at = datetime.now().astimezone()
+                project.focus_rank = None
+
+            elif project.completed_at is not None:
+                project.completed_at = None
 
         try:
             self.db.commit()
