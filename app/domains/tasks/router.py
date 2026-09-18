@@ -211,3 +211,53 @@ def restore_task(
     return to_read(
         TaskService(db).restore(task_id)
     )
+
+@router.get(
+    "/{task_id}/dependencies",
+    response_model=TaskListResponse,
+)
+def get_task_dependencies(
+    task_id: UUID,
+    db: Db,
+) -> TaskListResponse:
+    tasks = TaskService(db).get_dependencies(
+        task_id
+    )
+
+    return to_list_response(tasks)
+
+@router.post(
+    "/{task_id}/dependencies/{depends_on_task_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def add_task_dependency(
+    task_id: UUID,
+    depends_on_task_id: UUID,
+    db: Db,
+) -> Response:
+    TaskService(db).add_dependency(
+        task_id=task_id,
+        depends_on_task_id=depends_on_task_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
+    )
+
+@router.delete(
+    "/{task_id}/dependencies/{depends_on_task_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def remove_task_dependency(
+    task_id: UUID,
+    depends_on_task_id: UUID,
+    db: Db,
+) -> Response:
+    TaskService(db).remove_dependency(
+        task_id=task_id,
+        depends_on_task_id=depends_on_task_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
+    )

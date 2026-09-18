@@ -409,3 +409,11 @@ class TaskService:
             )
 
         self.db.commit()
+
+    def get_dependencies(
+        self,
+        task_id: UUID,
+    ) -> list[Task]:
+        self.get(task_id)
+
+        return self.repo.get_dependencies(task_id)
