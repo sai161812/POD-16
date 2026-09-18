@@ -5,7 +5,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.domains.tasks.enums import TaskPriority, TaskStatus
-from app.domains.tasks.model import Task
+from app.domains.tasks.model import Task, TaskDependency
 
 
 class TaskRepository:
@@ -122,6 +122,62 @@ class TaskRepository:
         )
 
         return list(self.db.scalars(stmt))
+
+    def get_dependencies(
+        self,
+        task_id: UUID,
+    ) -> list[Task]:
+        stmt = (
+            select(Task)
+            .join(
+                TaskDependency,
+                Task.id == TaskDependency.depends_on_task_id,
+            )
+            .where(
+                TaskDependency.task_id == task_id,
+            )
+            .order_by(Task.created_at.asc())
+        )
+
+        return list(self.db.scalars(stmt))
+
+
+    def add_dependency(
+        self,
+        *,
+        task_id: UUID,
+        depends_on_task_id: UUID,
+    ) -> TaskDependency:
+        dependency = TaskDependency(
+            task_id=task_id,
+            depends_on_task_id=depends_on_task_id,
+        )
+
+        self.db.add(dependency)
+        self.db.flush()
+
+        return dependency
+
+
+    def remove_dependency(
+        self,
+        *,
+
+        task_id: UUID,
+        depends_on_task_id: UUID,
+    ) -> bool:
+        dependency = self.db.get(
+            TaskDependency,
+            (task_id, depends_on_task_id),
+        )
+
+        if dependency is None:
+            return False
+
+        self.db.delete(dependency)
+        self.db.flush()
+
+        return True
 
     def overdue(
         self,
