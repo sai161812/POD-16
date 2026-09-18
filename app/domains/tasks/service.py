@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
+from fastapi import dependencies
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
@@ -246,6 +247,23 @@ class TaskService:
                 changes.pop("metadata")
             )
 
+        requested_status = changes.get(
+            "status",
+            task.status,
+        )
+
+        if (
+            requested_status
+            in {
+                TaskStatus.IN_PROGRESS,
+                TaskStatus.COMPLETED,
+            }
+            and requested_status != task.status
+        ):
+            self._ensure_dependencies_satisfied(
+                task.id
+            )
+            
         previous_status = task.status
 
         for field, value in changes.items():
@@ -417,3 +435,47 @@ class TaskService:
         self.get(task_id)
 
         return self.repo.get_dependencies(task_id)
+
+    def _get_blocking_dependencies(
+        self,
+        task_id: UUID,
+    ) -> list[Task]:
+        dependencies = self.repo.get_dependencies(
+            task_id
+    )
+
+        return [
+            task
+            for task in dependencies
+            if task.status != TaskStatus.COMPLETED
+        ]
+
+    def _ensure_dependencies_satisfied(
+        self,
+        task_id: UUID,
+    ) -> None:
+        blockers = self._get_blocking_dependencies(
+            task_id
+        )
+
+        if not blockers:
+            return
+
+        raise AppError(
+            code="task_dependency_not_satisfied",
+            message=(
+                "This task cannot be started or completed "
+                "until all dependencies are completed."
+            ),
+            status_code=409,
+            details={
+                "blocked_by": [
+                    {
+                        "id": str(task.id),
+                        "title": task.title,
+                        "status": task.status.value,
+                    }
+                    for task in blockers
+                ]
+            },
+        )
