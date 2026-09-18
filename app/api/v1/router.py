@@ -19,3 +19,11 @@ api_router.include_router(
     prefix="/notes",
     tags=["notes"],
 )
+from app.domains.goals.router import (
+    router as goals_router,
+)
+api_router.include_router(
+    goals_router,
+    prefix="/goals",
+    tags=["goals"],
+)

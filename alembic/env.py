@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.domains.projects.model import Project  # noqa: F401
 from app.domains.tasks.model import Task  # noqa: F401
 from app.domains.notes.model import Note  # noqa: F401
+from app.domains.goals.model import Goal  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
