@@ -307,3 +307,105 @@ class TaskService:
         self.db.refresh(task)
 
         return task
+
+    def _validate_dependency(
+        self,
+        *,
+        task_id: UUID,
+        depends_on_task_id: UUID,
+    ) -> None:
+        # Both tasks must exist.
+        self.get(task_id)
+        self.get(depends_on_task_id)
+
+    # A task cannot depend on itself.
+        if task_id == depends_on_task_id:
+            raise AppError(
+                code="invalid_task_dependency",
+                message="A task cannot depend on itself.",
+                status_code=422,
+            )
+
+        # Prevent duplicate dependency edges.
+        existing = self.repo.get_dependencies(task_id)
+
+        if any(
+            task.id == depends_on_task_id
+            for task in existing
+        ):
+            raise AppError(
+                code="task_dependency_exists",
+                message="This task dependency already exists.",
+                status_code=409,
+        )
+
+    # Cycle detection:
+    #
+    # If B wants to depend on A, walk A's dependency tree.
+    # If we eventually reach B, adding B -> A would create a loop.
+        stack = [depends_on_task_id]
+        visited: set[UUID] = set()
+
+        while stack:
+            current_id = stack.pop()
+
+            if current_id == task_id:
+                raise AppError(
+                    code="task_dependency_cycle",
+                    message="This dependency would create a cycle.",
+                    status_code=422,
+                )
+
+            if current_id in visited:
+                continue
+
+            visited.add(current_id)
+
+            dependencies = self.repo.get_dependencies(
+                current_id
+            )
+
+            stack.extend(
+                dependency.id
+                for dependency in dependencies
+            )
+
+    def add_dependency(
+        self,
+        *,
+        task_id: UUID,
+        depends_on_task_id: UUID,
+    ) -> None:
+        self._validate_dependency(
+            task_id=task_id,
+            depends_on_task_id=depends_on_task_id,
+        )
+
+        self.repo.add_dependency(
+            task_id=task_id,
+            depends_on_task_id=depends_on_task_id,
+        )
+
+        self.db.commit()
+
+    def remove_dependency(
+        self,
+        *,
+        task_id: UUID,
+        depends_on_task_id: UUID,
+    ) -> None:
+        self.get(task_id)
+
+        removed = self.repo.remove_dependency(
+            task_id=task_id,
+            depends_on_task_id=depends_on_task_id,
+        )
+
+        if not removed:
+            raise AppError(
+                code="task_dependency_not_found",
+                message="Task dependency not found.",
+                status_code=404,
+            )
+
+        self.db.commit()
