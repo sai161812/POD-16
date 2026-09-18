@@ -17,6 +17,8 @@ from app.domains.goals.schemas import (
     GoalListResponse,
     GoalRead,
     GoalUpdate,
+    GoalLinkedProjectListResponse,
+    GoalLinkedProjectRead,
 )
 from app.domains.goals.service import GoalService
 
@@ -149,4 +151,70 @@ def restore_goal(
 ) -> GoalRead:
     return to_read(
         GoalService(db).restore(goal_id)
+    )
+
+@router.get(
+    "/{goal_id}/projects",
+    response_model=GoalLinkedProjectListResponse,
+)
+def get_goal_projects(
+    goal_id: UUID,
+    db: Db,
+) -> GoalLinkedProjectListResponse:
+    projects = GoalService(db).get_projects(
+        goal_id
+    )
+
+    return GoalLinkedProjectListResponse(
+        data=[
+            GoalLinkedProjectRead(
+                id=project.id,
+                name=project.name,
+                slug=project.slug,
+                status=project.status,
+                priority=project.priority,
+                focus_rank=project.focus_rank,
+                progress_percent=project.progress_percent,
+                target_date=project.target_date,
+            )
+            for project in projects
+        ]
+    )
+
+
+@router.post(
+    "/{goal_id}/projects/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def link_goal_project(
+    goal_id: UUID,
+    project_id: UUID,
+    db: Db,
+) -> Response:
+    GoalService(db).link_project(
+        goal_id=goal_id,
+        project_id=project_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
+    )
+
+
+@router.delete(
+    "/{goal_id}/projects/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def unlink_goal_project(
+    goal_id: UUID,
+    project_id: UUID,
+    db: Db,
+) -> Response:
+    GoalService(db).unlink_project(
+        goal_id=goal_id,
+        project_id=project_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
     )

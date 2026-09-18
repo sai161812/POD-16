@@ -4,8 +4,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.domains.goals.enums import GoalStatus
-from app.domains.goals.model import Goal
-
+from app.domains.goals.model import Goal, GoalProject
+from app.domains.projects.model import Project
 
 class GoalRepository:
     def __init__(self, db: Session) -> None:
@@ -81,3 +81,76 @@ class GoalRepository:
         self.db.refresh(goal)
 
         return goal
+
+    def get_projects(
+        self,
+        goal_id: UUID,
+    ) -> list[Project]:
+        stmt = (
+            select(Project)
+            .join(
+                GoalProject,
+                GoalProject.project_id == Project.id,
+           )
+            .where(
+                GoalProject.goal_id == goal_id,
+                Project.deleted_at.is_(None),
+           )
+            .order_by(
+                Project.focus_rank.asc().nullslast(),
+                Project.created_at.desc(),
+            )
+        )
+
+        return list(self.db.scalars(stmt))
+
+
+    def project_link_exists(
+        self,
+        *,
+        goal_id: UUID,
+        project_id: UUID,
+    ) -> bool:
+        link = self.db.get(
+            GoalProject,
+            (goal_id, project_id),
+        )
+
+        return link is not None
+
+
+    def add_project_link(
+        self,
+        *,
+        goal_id: UUID,
+        project_id: UUID,
+    ) -> GoalProject:
+        link = GoalProject(
+            goal_id=goal_id,
+            project_id=project_id,
+        )
+
+        self.db.add(link)
+        self.db.flush()
+
+        return link
+
+
+    def remove_project_link(
+        self,
+        *,
+        goal_id: UUID,
+        project_id: UUID,
+    ) -> bool:
+        link = self.db.get(
+            GoalProject,
+            (goal_id, project_id),
+        )
+
+        if link is None:
+            return False
+
+        self.db.delete(link)
+        self.db.flush()
+
+        return True

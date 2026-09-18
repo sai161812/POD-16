@@ -7,6 +7,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     Enum,
+    ForeignKey,
     Integer,
     String,
     Text,
@@ -102,4 +103,32 @@ class Goal(Base):
         DateTime(timezone=True),
         nullable=True,
         index=True,
+    )
+
+class GoalProject(Base):
+    __tablename__ = "goal_projects"
+
+    goal_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey(
+            "goals.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )
+
+    project_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey(
+            "projects.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+        index=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default="now()",
     )

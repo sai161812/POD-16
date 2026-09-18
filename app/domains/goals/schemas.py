@@ -5,6 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from app.domains.goals.enums import GoalStatus
+from app.domains.projects.enums import (
+    ProjectPriority,
+    ProjectStatus,
+)
 
 
 class GoalCreate(BaseModel):
@@ -67,3 +71,17 @@ class GoalRead(BaseModel):
 
 class GoalListResponse(BaseModel):
     data: list[GoalRead]    
+
+class GoalLinkedProjectRead(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    status: ProjectStatus
+    priority: ProjectPriority
+    focus_rank: int | None
+    progress_percent: int | None
+    target_date: date | None
+
+
+class GoalLinkedProjectListResponse(BaseModel):
+    data: list[GoalLinkedProjectRead]

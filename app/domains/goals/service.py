@@ -13,12 +13,15 @@ from app.domains.goals.schemas import (
     GoalCreate,
     GoalUpdate,
 )
-
+from app.domains.projects.repository import (
+    ProjectRepository,
+)
 
 class GoalService:
     def __init__(self, db: Session) -> None:
         self.db = db
         self.repo = GoalRepository(db)
+        self.projects = ProjectRepository(db)
 
     def create(
         self,
@@ -159,3 +162,72 @@ class GoalService:
         self.db.refresh(goal)
 
         return goal
+
+    def get_projects(
+        self,
+        goal_id: UUID,
+    ):
+        self.get(goal_id)
+
+        return self.repo.get_projects(goal_id)
+
+
+    def link_project(
+        self,
+        *,
+        goal_id: UUID,
+        project_id: UUID,
+    ) -> None:
+        self.get(goal_id)
+
+        project = self.projects.get(project_id)
+
+        if project is None:
+            raise AppError(
+                code="project_not_found",
+                message="Project not found.",
+                status_code=404,
+                details={
+                    "project_id": str(project_id),
+                },
+            )
+
+        if self.repo.project_link_exists(
+            goal_id=goal_id,
+            project_id=project_id,
+        ):
+            raise AppError(
+                code="goal_project_link_exists",
+                message="Project is already linked to this goal.",
+                status_code=409,
+            )
+
+        self.repo.add_project_link(
+            goal_id=goal_id,
+            project_id=project_id,
+        )
+
+        self.db.commit()
+
+
+    def unlink_project(
+        self,
+        *,
+        goal_id: UUID,
+        project_id: UUID,
+    ) -> None:
+        self.get(goal_id)
+
+        removed = self.repo.remove_project_link(
+            goal_id=goal_id,
+            project_id=project_id,
+        )
+
+        if not removed:
+            raise AppError(
+                code="goal_project_link_not_found",
+                message="Goal-project link not found.",
+                status_code=404,
+            )
+
+        self.db.commit()
