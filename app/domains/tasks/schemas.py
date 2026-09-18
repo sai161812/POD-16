@@ -124,3 +124,13 @@ class TaskRead(BaseModel):
 
 class TaskListResponse(BaseModel):
     data: list[TaskRead]
+
+class TaskBlockerRead(BaseModel):
+    id: UUID
+    title: str
+    status: TaskStatus
+
+
+class TaskStateRead(BaseModel):
+    is_blocked: bool
+    blocked_by: list[TaskBlockerRead]

@@ -479,3 +479,25 @@ class TaskService:
                 ]
             },
         )
+
+    def get_state(
+        self,
+        task_id: UUID,
+    ) -> dict:
+        self.get(task_id)
+
+        blockers = self._get_blocking_dependencies(
+            task_id
+        )
+
+        return {
+            "is_blocked": len(blockers) > 0,
+            "blocked_by": [
+                {
+                    "id": task.id,
+                    "title": task.title,
+                    "status": task.status,
+                }
+                for task in blockers
+            ],
+        }

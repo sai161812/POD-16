@@ -19,6 +19,7 @@ from app.domains.tasks.schemas import (
     TaskCreate,
     TaskListResponse,
     TaskRead,
+    TaskStateRead,
     TaskUpdate,
 )
 from app.domains.tasks.service import TaskService
@@ -260,4 +261,16 @@ def remove_task_dependency(
 
     return Response(
         status_code=status.HTTP_204_NO_CONTENT
+    )
+
+@router.get(
+    "/{task_id}/state",
+    response_model=TaskStateRead,
+)
+def get_task_state(
+    task_id: UUID,
+    db: Db,
+) -> TaskStateRead:
+    return TaskStateRead(
+        **TaskService(db).get_state(task_id)
     )
