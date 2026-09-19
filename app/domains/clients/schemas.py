@@ -22,6 +22,8 @@ ALLOWED_SCOPES = {
     "clients:manage",
     "profile:read",
     "profile:write",
+    "skills:read",
+    "skills:write",
     "*",
 }
 

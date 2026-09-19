@@ -21,6 +21,9 @@ from app.domains.goals.router import (
 from app.domains.profile.router import (
     router as profile_router,
 )
+from app.domains.skills.router import (
+    router as skills_router,
+)
 
 api_router = APIRouter(dependencies=[Depends(require_api_key)])
 api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
@@ -59,4 +62,9 @@ api_router.include_router(
     profile_router,
     prefix="/profile",
     tags=["profile"],
+)
+api_router.include_router(
+    skills_router,
+    prefix="/skills",
+    tags=["skills"],
 )
