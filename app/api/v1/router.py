@@ -18,6 +18,9 @@ from app.domains.clients.router import (
 from app.domains.goals.router import (
     router as goals_router,
 )
+from app.domains.profile.router import (
+    router as profile_router,
+)
 
 api_router = APIRouter(dependencies=[Depends(require_api_key)])
 api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
@@ -51,4 +54,9 @@ api_router.include_router(
     search_router,
     prefix="/search",
     tags=["search"],
+)
+api_router.include_router(
+    profile_router,
+    prefix="/profile",
+    tags=["profile"],
 )

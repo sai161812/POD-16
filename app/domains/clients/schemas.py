@@ -20,6 +20,8 @@ ALLOWED_SCOPES = {
     "focus:read",
     "search:read",
     "clients:manage",
+    "profile:read",
+    "profile:write",
     "*",
 }
 
