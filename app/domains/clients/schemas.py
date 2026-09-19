@@ -26,6 +26,7 @@ ALLOWED_SCOPES = {
     "skills:write",
     "resources:read",
     "resources:write",
+    "activity:read",
     "*",
 }
 

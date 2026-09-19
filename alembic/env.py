@@ -19,6 +19,9 @@ from app.domains.resources.model import (
     Resource,
     ResourceSkill,
 )  # noqa: F401
+from app.domains.activity.model import (
+    ActivityEvent,
+)  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
