@@ -15,6 +15,10 @@ from app.domains.skills.model import (
     LearningSession,
     Skill,
 )  # noqa: F401
+from app.domains.resources.model import (
+    Resource,
+    ResourceSkill,
+)  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

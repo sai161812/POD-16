@@ -24,6 +24,8 @@ ALLOWED_SCOPES = {
     "profile:write",
     "skills:read",
     "skills:write",
+    "resources:read",
+    "resources:write",
     "*",
 }
 

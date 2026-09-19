@@ -5,7 +5,7 @@ from app.domains.goals.model import Goal
 from app.domains.notes.model import Note
 from app.domains.projects.model import Project
 from app.domains.tasks.model import Task
-
+from app.domains.resources.model import Resource
 
 class SearchRepository:
     def __init__(self, db: Session) -> None:
@@ -107,3 +107,31 @@ class SearchRepository:
         )
 
         return list(self.db.scalars(stmt))
+
+    def resources(
+        self,
+        query: str,
+        limit: int,
+    ) -> list[Resource]:
+        pattern = f"%{query}%"
+
+        stmt = (
+            select(Resource)
+            .where(
+                Resource.deleted_at.is_(None),
+                or_(
+                    Resource.title.ilike(pattern),
+                    Resource.author.ilike(pattern),
+                    Resource.description.ilike(pattern),
+                    Resource.url.ilike(pattern),
+                ),
+            )
+            .order_by(
+                Resource.updated_at.desc()
+            )
+            .limit(limit)
+        )
+
+        return list(
+            self.db.scalars(stmt)
+        )

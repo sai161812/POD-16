@@ -10,7 +10,10 @@ from app.domains.search.schemas import (
 
 
 class SearchService:
-    def __init__(self, db: Session) -> None:
+    def __init__(
+        self,
+        db: Session,
+    ) -> None:
         self.repo = SearchRepository(db)
 
     @staticmethod
@@ -70,11 +73,17 @@ class SearchService:
         if not query:
             raise AppError(
                 code="invalid_search_query",
-                message="Search query cannot be empty.",
+                message=(
+                    "Search query cannot be empty."
+                ),
                 status_code=422,
             )
 
         results = []
+
+        # ---------------------------------
+        # Projects
+        # ---------------------------------
 
         projects = self.repo.projects(
             query,
@@ -84,14 +93,20 @@ class SearchService:
         for project in projects:
             results.append(
                 {
-                    "type": SearchResultType.PROJECT,
+                    "type": (
+                        SearchResultType.PROJECT
+                    ),
                     "id": project.id,
                     "title": project.name,
                     "snippet": self._snippet(
                         project.description
                     ),
-                    "status": project.status.value,
-                    "updated_at": project.updated_at,
+                    "status": (
+                        project.status.value
+                    ),
+                    "updated_at": (
+                        project.updated_at
+                    ),
                     "_rank": self._rank(
                         query,
                         project.name,
@@ -99,6 +114,10 @@ class SearchService:
                     ),
                 }
             )
+
+        # ---------------------------------
+        # Tasks
+        # ---------------------------------
 
         tasks = self.repo.tasks(
             query,
@@ -108,14 +127,20 @@ class SearchService:
         for task in tasks:
             results.append(
                 {
-                    "type": SearchResultType.TASK,
+                    "type": (
+                        SearchResultType.TASK
+                    ),
                     "id": task.id,
                     "title": task.title,
                     "snippet": self._snippet(
                         task.description
                     ),
-                    "status": task.status.value,
-                    "updated_at": task.updated_at,
+                    "status": (
+                        task.status.value
+                    ),
+                    "updated_at": (
+                        task.updated_at
+                    ),
                     "_rank": self._rank(
                         query,
                         task.title,
@@ -123,6 +148,10 @@ class SearchService:
                     ),
                 }
             )
+
+        # ---------------------------------
+        # Notes
+        # ---------------------------------
 
         notes = self.repo.notes(
             query,
@@ -132,14 +161,18 @@ class SearchService:
         for note in notes:
             results.append(
                 {
-                    "type": SearchResultType.NOTE,
+                    "type": (
+                        SearchResultType.NOTE
+                    ),
                     "id": note.id,
                     "title": note.title,
                     "snippet": self._snippet(
                         note.content
                     ),
                     "status": None,
-                    "updated_at": note.updated_at,
+                    "updated_at": (
+                        note.updated_at
+                    ),
                     "_rank": self._rank(
                         query,
                         note.title,
@@ -147,6 +180,10 @@ class SearchService:
                     ),
                 }
             )
+
+        # ---------------------------------
+        # Goals
+        # ---------------------------------
 
         goals = self.repo.goals(
             query,
@@ -156,14 +193,20 @@ class SearchService:
         for goal in goals:
             results.append(
                 {
-                    "type": SearchResultType.GOAL,
+                    "type": (
+                        SearchResultType.GOAL
+                    ),
                     "id": goal.id,
                     "title": goal.title,
                     "snippet": self._snippet(
                         goal.description
                     ),
-                    "status": goal.status.value,
-                    "updated_at": goal.updated_at,
+                    "status": (
+                        goal.status.value
+                    ),
+                    "updated_at": (
+                        goal.updated_at
+                    ),
                     "_rank": self._rank(
                         query,
                         goal.title,
@@ -172,10 +215,47 @@ class SearchService:
                 }
             )
 
+        # ---------------------------------
+        # Resources
+        # ---------------------------------
+
+        resources = self.repo.resources(
+            query,
+            limit,
+        )
+
+        for resource in resources:
+            results.append(
+                {
+                    "type": (
+                        SearchResultType.RESOURCE
+                    ),
+                    "id": resource.id,
+                    "title": resource.title,
+                    "snippet": self._snippet(
+                        resource.description
+                    ),
+                    "status": (
+                        resource.status.value
+                    ),
+                    "updated_at": (
+                        resource.updated_at
+                    ),
+                    "_rank": self._rank(
+                        query,
+                        resource.title,
+                        resource.description,
+                    ),
+                }
+            )
+
+
         results.sort(
             key=lambda item: (
                 item["_rank"],
-                -item["updated_at"].timestamp(),
+                -item[
+                    "updated_at"
+                ].timestamp(),
             )
         )
 

@@ -10,6 +10,7 @@ class SearchResultType(StrEnum):
     TASK = "task"
     NOTE = "note"
     GOAL = "goal"
+    RESOURCE = "resource"
 
 
 class SearchResultRead(BaseModel):
