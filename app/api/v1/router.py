@@ -12,6 +12,12 @@ from app.domains.focus.router import (
 from app.domains.search.router import (
     router as search_router,
 )
+from app.domains.clients.router import (
+    router as clients_router,
+)
+from app.domains.goals.router import (
+    router as goals_router,
+)
 
 api_router = APIRouter(dependencies=[Depends(require_api_key)])
 api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
@@ -25,9 +31,12 @@ api_router.include_router(
     prefix="/notes",
     tags=["notes"],
 )
-from app.domains.goals.router import (
-    router as goals_router,
+api_router.include_router(
+    clients_router,
+    prefix="/clients",
+    tags=["clients"],
 )
+
 api_router.include_router(
     goals_router,
     prefix="/goals",
