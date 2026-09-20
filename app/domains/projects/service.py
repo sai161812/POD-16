@@ -52,8 +52,16 @@ class ProjectService:
             )
         return project
 
-    def list(self, limit: int) -> list[Project]:
-        return self.repo.list(limit=limit)
+    def list(
+        self,
+        *,
+        limit: int,
+        offset: int,
+    ) -> list[Project]:
+        return self.repo.list(
+            limit=limit,
+            offset=offset,
+        )
 
     def update(self, project_id: UUID, payload: ProjectUpdate) -> Project:
         project = self.get(project_id)

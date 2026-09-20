@@ -64,6 +64,10 @@ def list_notes(
         int,
         Query(ge=1, le=100),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
     project_id: UUID | None = None,
     q: Annotated[
         str | None,
@@ -75,6 +79,7 @@ def list_notes(
 ) -> NoteListResponse:
     notes = NoteService(db).list(
         limit=limit,
+        offset=offset,
         project_id=project_id,
         q=q,
     )

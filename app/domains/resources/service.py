@@ -81,13 +81,15 @@ class ResourceService:
     def list(
         self,
         *,
-        limit,
+        limit: int,
+        offset: int,
         resource_type,
         status,
         q,
     ):
         return self.repo.list(
             limit=limit,
+            offset=offset,
             resource_type=resource_type,
             status=status,
             q=q,

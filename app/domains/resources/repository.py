@@ -50,6 +50,7 @@ class ResourceRepository:
         self,
         *,
         limit: int,
+        offset: int, 
         resource_type: ResourceType | None,
         status: ResourceStatus | None,
         q: str | None,
@@ -95,9 +96,11 @@ class ResourceRepository:
         stmt = (
             stmt
             .order_by(
-                Resource.updated_at.desc()
+                Resource.updated_at.desc(),
+                Resource.id.desc(),
             )
             .limit(limit)
+            .offset(offset)
         )
 
         return list(

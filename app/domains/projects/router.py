@@ -42,13 +42,34 @@ def create_project(payload: ProjectCreate, db: Db) -> ProjectRead:
     return to_read(ProjectService(db).create(payload))
 
 
-@router.get("", response_model=ProjectListResponse)
+@router.get(
+    "",
+    response_model=ProjectListResponse,
+)
 def list_projects(
     db: Db,
-    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    limit: Annotated[
+        int,
+        Query(ge=1, le=100),
+    ] = 50,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
 ) -> ProjectListResponse:
-    projects = ProjectService(db).list(limit=limit)
-    return ProjectListResponse(data=[to_read(project) for project in projects])
+    projects = ProjectService(
+        db
+    ).list(
+        limit=limit,
+        offset=offset,
+    )
+
+    return ProjectListResponse(
+        data=[
+            to_read(project)
+            for project in projects
+        ]
+    )
 
 
 @router.get("/{project_id}", response_model=ProjectRead)

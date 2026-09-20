@@ -3,11 +3,15 @@ from uuid import UUID
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from app.domains.notes.model import Note
 from app.core.query import contains_pattern
+from app.domains.notes.model import Note
+
 
 class NoteRepository:
-    def __init__(self, db: Session) -> None:
+    def __init__(
+        self,
+        db: Session,
+    ) -> None:
         self.db = db
 
     def get(
@@ -36,6 +40,7 @@ class NoteRepository:
         self,
         *,
         limit: int = 50,
+        offset: int = 0,
         project_id: UUID | None = None,
         q: str | None = None,
     ) -> list[Note]:
@@ -63,12 +68,14 @@ class NoteRepository:
                     ),
                 )
             )
+
         stmt = (
             stmt
             .order_by(
                 Note.updated_at.desc(),
                 Note.id.desc(),
             )
+            .offset(offset)
             .limit(limit)
         )
 

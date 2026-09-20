@@ -82,6 +82,10 @@ def list_resources(
         int,
         Query(ge=1, le=100),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
     resource_type: ResourceType | None = None,
     status_filter: Annotated[
         ResourceStatus | None,
@@ -93,6 +97,7 @@ def list_resources(
         db
     ).list(
         limit=limit,
+        offset=offset,
         resource_type=resource_type,
         status=status_filter,
         q=q,

@@ -77,11 +77,13 @@ class SkillService:
         self,
         *,
         limit: int,
+        offset: int,
         category: str | None,
         q: str | None,
     ) -> list[Skill]:
         return self.repo.list(
             limit=limit,
+            offset=offset,
             category=category,
             q=q,
         )

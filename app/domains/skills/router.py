@@ -91,11 +91,16 @@ def list_skills(
         int,
         Query(ge=1, le=100),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
     category: str | None = None,
     q: str | None = None,
 ) -> SkillListResponse:
     skills = SkillService(db).list(
         limit=limit,
+        offset=offset,
         category=category,
         q=q,
     )

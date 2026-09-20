@@ -157,6 +157,7 @@ class TaskService:
         self,
         *,
         limit: int,
+        offset: int,
         status: TaskStatus | None,
         priority: TaskPriority | None,
         project_id: UUID | None,
@@ -165,6 +166,7 @@ class TaskService:
     ) -> list[Task]:
         return self.repo.list(
             limit=limit,
+            offset=offset,
             status=status,
             priority=priority,
             project_id=project_id,

@@ -133,6 +133,10 @@ def list_tasks(
         TaskStatus | None,
         Query(alias="status"),
     ] = None,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
     priority: TaskPriority | None = None,
     project_id: UUID | None = None,
     parent_task_id: UUID | None = None,
@@ -146,6 +150,7 @@ def list_tasks(
 ) -> TaskListResponse:
     tasks = TaskService(db).list(
         limit=limit,
+        offset=offset,
         status=status_filter,
         priority=priority,
         project_id=project_id,

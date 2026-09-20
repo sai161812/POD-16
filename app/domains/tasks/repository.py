@@ -32,6 +32,7 @@ class TaskRepository:
         self,
         *,
         limit: int = 50,
+        offset: int = 0,
         status: TaskStatus | None = None,
         priority: TaskPriority | None = None,
         project_id: UUID | None = None,
@@ -86,6 +87,7 @@ class TaskRepository:
                 Task.id.desc(),
             )
             .limit(limit)
+            .offset(offset)
         )
 
         return list(self.db.scalars(stmt))

@@ -56,6 +56,7 @@ class SkillRepository:
         self,
         *,
         limit: int,
+        offset: int,
         category: str | None,
         q: str | None,
     ) -> list[Skill]:
@@ -92,7 +93,9 @@ class SkillRepository:
             .order_by(
                 Skill.updated_at.desc(),
                 Skill.name.asc(),
+                Skill.id.desc(),
             )
+            .offset(offset)
             .limit(limit)
         )
 

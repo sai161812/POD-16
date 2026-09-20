@@ -73,11 +73,13 @@ class GoalService:
         self,
         *,
         limit: int,
+        offset: int,
         status: GoalStatus | None,
         q: str | None,
     ) -> list[Goal]:
         return self.repo.list(
             limit=limit,
+            offset=offset,
             status=status,
             q=q,
         )

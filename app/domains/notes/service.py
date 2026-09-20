@@ -83,11 +83,13 @@ class NoteService:
         self,
         *,
         limit: int,
+        offset: int,
         project_id: UUID | None,
         q: str | None,
     ) -> list[Note]:
         return self.repo.list(
             limit=limit,
+            offset=offset,
             project_id=project_id,
             q=q,
         )

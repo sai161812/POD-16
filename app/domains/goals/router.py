@@ -70,6 +70,10 @@ def list_goals(
         int,
         Query(ge=1, le=100),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(ge=0),
+    ] = 0,
     status_filter: Annotated[
         GoalStatus | None,
         Query(alias="status"),
@@ -84,6 +88,7 @@ def list_goals(
 ) -> GoalListResponse:
     goals = GoalService(db).list(
         limit=limit,
+        offset=offset,
         status=status_filter,
         q=q,
     )

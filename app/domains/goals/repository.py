@@ -38,6 +38,7 @@ class GoalRepository:
         self,
         *,
         limit: int,
+        offset: int,
         status: GoalStatus | None,
         q: str | None,
     ) -> list[Goal]:
@@ -72,6 +73,7 @@ class GoalRepository:
                 Goal.updated_at.desc(),
                 Goal.id.desc(),
             )
+            .offset(offset)
             .limit(limit)
         )
 

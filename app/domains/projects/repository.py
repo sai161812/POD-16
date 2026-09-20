@@ -35,14 +35,28 @@ class ProjectRepository:
         )
         return self.db.scalar(stmt)
 
-    def list(self, limit: int = 50) -> list[Project]:
+    def list(
+        self,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[Project]:
         stmt = (
             select(Project)
-            .where(Project.deleted_at.is_(None))
-            .order_by(Project.focus_rank.asc().nullslast(), Project.created_at.desc())
+           .where(
+               Project.deleted_at.is_(None)
+           )
+            .order_by(
+                Project.focus_rank.asc().nullslast(),
+                Project.created_at.desc(),
+                Project.id.desc(),
+            )
+            .offset(offset)
             .limit(limit)
         )
-        return list(self.db.scalars(stmt))
+
+        return list(
+            self.db.scalars(stmt)
+        )
 
     def add(self, project: Project) -> Project:
         self.db.add(project)
