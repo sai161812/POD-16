@@ -1,12 +1,13 @@
 services:
   db:
     image: postgres:18
+    restart: "no"
     environment:
       POSTGRES_DB: pod16
       POSTGRES_USER: pod16
       POSTGRES_PASSWORD: pod16
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pod16_pgdata:/var/lib/postgresql
     healthcheck:
@@ -14,6 +15,36 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    mem_limit: 384m
+    cpus: 0.50
+
+  api:
+    build:
+      context: .
+    restart: "no"
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POD16_ENV: ${POD16_ENV:-development}
+      POD16_DATABASE_URL: postgresql+psycopg://pod16:pod16@db:5432/pod16
+      POD16_BOOTSTRAP_API_KEY: ${POD16_BOOTSTRAP_API_KEY:-change-me-before-deployment}
+      POD16_LOG_LEVEL: ${POD16_LOG_LEVEL:-INFO}
+      POD16_TIMEZONE: ${POD16_TIMEZONE:-Asia/Kolkata}
+    ports:
+      - "127.0.0.1:8000:8000"
+    command:
+      - /bin/sh
+      - -c
+      - >
+        /app/.venv/bin/alembic upgrade head &&
+        exec /app/.venv/bin/uvicorn
+        app.main:app
+        --host 0.0.0.0
+        --port 8000
+    mem_limit: 256m
+    cpus: 0.50
 
 volumes:
   pod16_pgdata:
