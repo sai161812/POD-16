@@ -208,13 +208,25 @@ def list_learning_sessions(
     db: Db,
     limit: Annotated[
         int,
-        Query(ge=1, le=100),
+        Query(
+            ge=1,
+            le=100,
+        ),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(
+            ge=0,
+        ),
+    ] = 0,
 ) -> LearningSessionListResponse:
     sessions = (
-        SkillService(db).sessions(
+        SkillService(
+            db
+        ).sessions(
             skill_id,
             limit=limit,
+            offset=offset,
         )
     )
 
@@ -224,7 +236,6 @@ def list_learning_sessions(
             for session in sessions
         ]
     )
-
 
 @router.get(
     "/{skill_id}/progress",

@@ -92,6 +92,12 @@ def list_rules(
             le=100,
         ),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(
+            ge=0,
+        ),
+    ] = 0,
     domain: RuleDomain | None = None,
     enabled: bool | None = None,
 ) -> RuleListResponse:
@@ -99,6 +105,7 @@ def list_rules(
         db
     ).list(
         limit=limit,
+        offset=offset,
         domain=domain,
         enabled=enabled,
     )

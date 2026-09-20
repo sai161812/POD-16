@@ -42,6 +42,7 @@ class RuleRepository:
         self,
         *,
         limit: int,
+        offset: int,
         domain: RuleDomain | None,
         enabled: bool | None,
     ) -> list[Rule]:
@@ -62,9 +63,11 @@ class RuleRepository:
         stmt = (
             stmt
             .order_by(
-                Rule.created_at.asc()
+                Rule.created_at.asc(),
+                Rule.id.asc(),
             )
             .limit(limit)
+            .offset(offset)
         )
 
         return list(

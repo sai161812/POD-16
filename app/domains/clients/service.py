@@ -58,9 +58,15 @@ class ApiClientService:
 
     def list(
         self,
+        *,
+        limit: int,
+        offset: int,
     ) -> list[ApiClient]:
-        return self.repo.list()
-
+        return self.repo.list(
+            limit=limit,
+            offset=offset,
+        )
+    
     def revoke(
         self,
         client_id: UUID,

@@ -29,15 +29,26 @@ class ApiClientRepository:
 
         return self.db.scalar(stmt)
 
-    def list(self) -> list[ApiClient]:
-        stmt = select(ApiClient).order_by(
-            ApiClient.created_at.desc()
+    def list(
+        self,
+        *,
+        limit: int,
+        offset: int,
+    ) -> list[ApiClient]:
+        stmt = (
+            select(ApiClient)
+            .order_by(
+                ApiClient.created_at.desc(),
+                ApiClient.id.desc(),
+            )
+            .offset(offset)
+            .limit(limit)
         )
 
         return list(
             self.db.scalars(stmt)
         )
-
+    
     def add(
         self,
         client: ApiClient,

@@ -59,6 +59,12 @@ def list_activity(
             le=200,
         ),
     ] = 50,
+    offset: Annotated[
+        int,
+        Query(
+            ge=0,
+        ),
+    ] = 0,
     domain: str | None = None,
     method: str | None = None,
     actor_client_id: UUID | None = None,
@@ -68,6 +74,7 @@ def list_activity(
         db
     ).list(
         limit=limit,
+        offset=offset,
         domain=domain,
         method=method,
         actor_client_id=actor_client_id,

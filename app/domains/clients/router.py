@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import (
     APIRouter,
     Depends,
+    Query,
     Response,
     status,
 )
@@ -68,9 +69,27 @@ def create_client(
 )
 def list_clients(
     db: Db,
+    limit: Annotated[
+        int,
+        Query(
+            ge=1,
+            le=100,
+        ),
+    ] = 50,
+    offset: Annotated[
+        int,
+        Query(
+            ge=0,
+        ),
+    ] = 0,
 ) -> ClientListResponse:
     clients = (
-        ApiClientService(db).list()
+        ApiClientService(
+            db
+        ).list(
+            limit=limit,
+            offset=offset,
+        )
     )
 
     return ClientListResponse(
@@ -79,7 +98,6 @@ def list_clients(
             for client in clients
         ]
     )
-
 
 @router.delete(
     "/{client_id}",

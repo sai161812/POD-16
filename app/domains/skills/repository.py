@@ -128,6 +128,7 @@ class SkillRepository:
         skill_id: UUID,
         *,
         limit: int,
+        offset: int,
     ) -> list[LearningSession]:
         stmt = (
             select(LearningSession)
@@ -136,9 +137,11 @@ class SkillRepository:
                 == skill_id
             )
             .order_by(
-                LearningSession.logged_at.desc()
+                LearningSession.logged_at.desc(),
+                LearningSession.id.desc(),
             )
             .limit(limit)
+            .offset(offset)
         )
 
         return list(

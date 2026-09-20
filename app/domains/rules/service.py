@@ -183,11 +183,13 @@ class RuleService:
         self,
         *,
         limit: int,
+        offset: int,
         domain: RuleDomain | None,
         enabled: bool | None,
     ):
         return self.repo.list(
             limit=limit,
+            offset=offset,
             domain=domain,
             enabled=enabled,
         )

@@ -51,6 +51,7 @@ class ActivityService:
         self,
         *,
         limit: int,
+        offset: int,
         domain: str | None,
         method: str | None,
         actor_client_id: UUID | None,
@@ -58,6 +59,7 @@ class ActivityService:
     ):
         return self.repo.list(
             limit=limit,
+            offset=offset,
             domain=domain,
             method=method,
             actor_client_id=actor_client_id,

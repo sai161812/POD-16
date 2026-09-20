@@ -228,12 +228,14 @@ class SkillService:
         skill_id: UUID,
         *,
         limit: int,
+        offset: int,
     ) -> list[LearningSession]:
         self.get(skill_id)
 
         return self.repo.sessions(
             skill_id,
             limit=limit,
+            offset=offset,
         )
 
     def progress(

@@ -28,6 +28,7 @@ class ActivityRepository:
         self,
         *,
         limit: int,
+        offset: int,
         domain: str | None,
         method: str | None,
         actor_client_id: UUID | None,
@@ -64,9 +65,11 @@ class ActivityRepository:
         stmt = (
             stmt
             .order_by(
-                ActivityEvent.created_at.desc()
+                ActivityEvent.created_at.desc(),
+                ActivityEvent.id.desc(),
             )
             .limit(limit)
+            .offset(offset)
         )
 
         return list(
