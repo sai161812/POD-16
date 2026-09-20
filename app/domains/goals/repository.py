@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.domains.goals.enums import GoalStatus
 from app.domains.goals.model import Goal, GoalProject
 from app.domains.projects.model import Project
+from app.core.query import contains_pattern
 
 class GoalRepository:
     def __init__(self, db: Session) -> None:
@@ -50,12 +51,18 @@ class GoalRepository:
             )
 
         if q:
-            pattern = f"%{q}%"
+            pattern = contains_pattern(q)
 
             stmt = stmt.where(
                 or_(
-                    Goal.title.ilike(pattern),
-                    Goal.description.ilike(pattern),
+                    Goal.title.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Goal.description.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
                 )
             )
 

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.domains.tasks.enums import TaskPriority, TaskStatus
 from app.domains.tasks.model import Task, TaskDependency
-
+from app.core.query import contains_pattern
 
 class TaskRepository:
     def __init__(self, db: Session) -> None:
@@ -63,12 +63,18 @@ class TaskRepository:
             )
 
         if q:
-            pattern = f"%{q}%"
+            pattern = contains_pattern(q)
 
             stmt = stmt.where(
                 or_(
-                    Task.title.ilike(pattern),
-                    Task.description.ilike(pattern),
+                    Task.title.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Task.description.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
                 )
             )
 

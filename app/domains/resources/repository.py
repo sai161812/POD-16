@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from app.core.query import contains_pattern
 from sqlalchemy import (
     or_,
     select,
@@ -70,17 +70,28 @@ class ResourceRepository:
             )
 
         if q:
-            pattern = f"%{q}%"
+            pattern = contains_pattern(q)
 
             stmt = stmt.where(
                 or_(
-                    Resource.title.ilike(pattern),
-                    Resource.author.ilike(pattern),
-                    Resource.description.ilike(pattern),
-                    Resource.url.ilike(pattern),
+                    Resource.title.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Resource.author.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Resource.description.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Resource.url.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
                 )
             )
-
         stmt = (
             stmt
             .order_by(

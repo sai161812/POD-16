@@ -11,6 +11,7 @@ class SearchResultType(StrEnum):
     NOTE = "note"
     GOAL = "goal"
     RESOURCE = "resource"
+    SKILL = "skill"
 
 
 class SearchResultRead(BaseModel):

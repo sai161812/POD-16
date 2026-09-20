@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from app.core.query import contains_pattern
 from sqlalchemy import (
     func,
     or_,
@@ -69,16 +69,24 @@ class SkillRepository:
             )
 
         if q:
-            pattern = f"%{q}%"
+            pattern = contains_pattern(q)
 
             stmt = stmt.where(
                 or_(
-                    Skill.name.ilike(pattern),
-                    Skill.category.ilike(pattern),
-                    Skill.notes.ilike(pattern),
+                    Skill.name.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Skill.category.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Skill.notes.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
                 )
             )
-
         stmt = (
             stmt
             .order_by(

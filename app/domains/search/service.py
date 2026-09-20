@@ -248,7 +248,37 @@ class SearchService:
                     ),
                 }
             )
+        # ---------------------------------
+        # Skills
+        # ---------------------------------
 
+        skills = self.repo.skills(
+        query,
+        limit,
+        )
+
+        for skill in skills:
+            results.append(
+                {
+                    "type": (
+                        SearchResultType.SKILL
+                    ),
+                    "id": skill.id,
+                    "title": skill.name,
+                    "snippet": self._snippet(
+                        skill.notes
+                    ),
+                    "status": None,
+                    "updated_at": (
+                        skill.updated_at
+                    ),
+                    "_rank": self._rank(
+                        query,
+                        skill.name,
+                        skill.notes,
+                    ),
+                }
+            )
 
         results.sort(
             key=lambda item: (

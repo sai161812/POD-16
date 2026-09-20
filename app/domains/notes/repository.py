@@ -4,7 +4,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.domains.notes.model import Note
-
+from app.core.query import contains_pattern
 
 class NoteRepository:
     def __init__(self, db: Session) -> None:
@@ -49,15 +49,20 @@ class NoteRepository:
             )
 
         if q:
-            pattern = f"%{q}%"
+            pattern = contains_pattern(q)
 
             stmt = stmt.where(
                 or_(
-                    Note.title.ilike(pattern),
-                    Note.content.ilike(pattern),
+                    Note.title.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
+                    Note.content.ilike(
+                        pattern,
+                        escape="\\",
+                    ),
                 )
             )
-
         stmt = (
             stmt
             .order_by(
