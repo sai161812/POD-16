@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+
+        env:
+          POSTGRES_DB: pod16
+          POSTGRES_USER: pod16
+          POSTGRES_PASSWORD: pod16
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd="pg_isready -U pod16 -d pod16"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      POD16_ENV: test
+      POD16_DATABASE_URL: postgresql+psycopg://pod16:pod16@localhost:5432/pod16
+      POD16_BOOTSTRAP_API_KEY: pod16-ci-bootstrap-key-0123456789abcdef
+      POD16_LOG_LEVEL: INFO
+      POD16_TIMEZONE: Asia/Kolkata
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        run: python -m pip install --upgrade uv
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Check Python compilation
+        run: uv run python -m compileall -q app
+
+      - name: Run Ruff
+        run: uv run ruff check app tests
+
+      - name: Run tests
+        run: uv run pytest -q
+
+      - name: Build Docker image
+        run: docker build -t pod-16:ci .
