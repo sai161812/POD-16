@@ -42,6 +42,9 @@ from app.domains.tasks.router import (
 from app.domains.rules.router import (
     router as rules_router,
 )
+from app.domains.attention.router import (
+    router as attention_router,
+)
 
 
 api_router = APIRouter(
@@ -120,4 +123,9 @@ api_router.include_router(
     rules_router,
     prefix="/rules",
     tags=["rules"],
+)
+api_router.include_router(
+    attention_router,
+    prefix="/attention",
+    tags=["attention"],
 )

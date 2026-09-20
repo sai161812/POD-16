@@ -29,6 +29,7 @@ ALLOWED_SCOPES = {
     "activity:read",
     "rules:read",
     "rules:write",
+    "attention:read",
     "*",
 }
 
