@@ -256,3 +256,34 @@ class TaskRepository:
         self.db.refresh(task)
 
         return task
+
+    def get_active_dependents(
+        self,
+        task_id: UUID,
+    ) -> list[Task]:
+        stmt = (
+            select(Task)
+            .join(
+                TaskDependency,
+                Task.id
+                == TaskDependency.task_id,
+            )
+            .where(
+                TaskDependency.depends_on_task_id
+                == task_id,
+                Task.deleted_at.is_(None),
+                Task.status.notin_(
+                    [
+                        TaskStatus.COMPLETED,
+                        TaskStatus.CANCELLED,
+                    ]
+                ),
+            )
+            .order_by(
+                Task.created_at.asc()
+            )
+        )
+
+        return list(
+            self.db.scalars(stmt)
+        )

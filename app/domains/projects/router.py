@@ -65,3 +65,17 @@ def update_project(project_id: UUID, payload: ProjectUpdate, db: Db) -> ProjectR
 def delete_project(project_id: UUID, db: Db) -> Response:
     ProjectService(db).delete(project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.post(
+    "/{project_id}/restore",
+    response_model=ProjectRead,
+)
+def restore_project(
+    project_id: UUID,
+    db: Db,
+) -> ProjectRead:
+    return to_read(
+        ProjectService(db).restore(
+            project_id
+        )
+    )

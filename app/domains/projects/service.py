@@ -99,3 +99,30 @@ class ProjectService:
         project = self.get(project_id)
         project.deleted_at = datetime.now().astimezone()
         self.db.commit()
+
+    def restore(
+        self,
+        project_id: UUID,
+    ) -> Project:
+        project = self.repo.get_deleted(
+            project_id
+        )
+
+        if project is None:
+            raise AppError(
+                code="deleted_project_not_found",
+                message="Deleted project not found.",
+                status_code=404,
+                details={
+                    "project_id": str(
+                        project_id
+                    ),
+                },
+            )
+
+        project.deleted_at = None
+
+        self.db.commit()
+        self.db.refresh(project)
+
+        return project

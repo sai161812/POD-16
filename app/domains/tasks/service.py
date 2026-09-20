@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from fastapi import dependencies
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
@@ -296,35 +295,49 @@ class TaskService:
     ) -> None:
         task = self.get(task_id)
 
+        if task.status != TaskStatus.COMPLETED:
+            dependents = (
+                self.repo
+                .get_active_dependents(
+                    task_id
+                )
+            )
+
+            if dependents:
+                raise AppError(
+                    code=(
+                        "task_has_active_dependents"
+                    ),
+                    message=(
+                        "This task cannot be "
+                        "deleted while active "
+                        "tasks depend on it."
+                    ),
+                    status_code=409,
+                    details={
+                        "depended_on_by": [
+                            {
+                                "id": str(
+                                    dependent.id
+                                ),
+                                "title": (
+                                    dependent.title
+                                ),
+                                "status": (
+                                    dependent
+                                    .status
+                                    .value
+                                ),
+                            }
+                            for dependent
+                            in dependents
+                        ]
+                    },
+                )
+
         task.deleted_at = now_local()
 
         self.db.commit()
-
-    def restore(
-        self,
-        task_id: UUID,
-    ) -> Task:
-        task = self.repo.get_deleted(
-            task_id
-        )
-
-        if task is None:
-            raise AppError(
-                code="deleted_task_not_found",
-                message="Deleted task not found.",
-                status_code=404,
-                details={
-                    "task_id": str(task_id),
-                },
-            )
-
-        task.deleted_at = None
-
-        self.db.commit()
-
-        self.db.refresh(task)
-
-        return task
 
     def _validate_dependency(
         self,

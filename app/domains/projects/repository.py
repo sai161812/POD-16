@@ -17,6 +17,17 @@ class ProjectRepository:
         )
         return self.db.scalar(stmt)
 
+    def get_deleted(
+        self,
+        project_id: UUID,
+    ) -> Project | None:
+        stmt = select(Project).where(
+            Project.id == project_id,
+            Project.deleted_at.is_not(None),
+      )
+
+        return self.db.scalar(stmt)
+
     def get_by_slug(self, slug: str) -> Project | None:
         stmt = select(Project).where(
             Project.slug == slug,
