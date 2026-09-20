@@ -24,7 +24,6 @@ from app.domains.tasks.schemas import (
 )
 from app.domains.tasks.service import TaskService
 
-
 router = APIRouter()
 
 Db = Annotated[

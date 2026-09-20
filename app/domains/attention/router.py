@@ -18,7 +18,6 @@ from app.domains.rules.enums import (
     RuleDomain,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

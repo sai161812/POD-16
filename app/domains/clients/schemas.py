@@ -7,7 +7,6 @@ from pydantic import (
     field_validator,
 )
 
-
 ALLOWED_SCOPES = {
     "projects:read",
     "projects:write",

@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, Request
@@ -13,13 +14,23 @@ from app.domains.activity.service import (
     ActivityService,
 )
 
-
 MUTATING_METHODS = {
     "POST",
     "PUT",
     "PATCH",
     "DELETE",
 }
+
+
+Db = Annotated[
+    Session,
+    Depends(get_db),
+]
+
+Auth = Annotated[
+    AuthContext,
+    Depends(require_api_key),
+]
 
 
 def _domain_from_request(
@@ -71,15 +82,7 @@ def _operation_path(
 
     # The dependency is attached to the
     # parent /v1 router, while FastAPI may
-    # expose only the child router's path
-    # here, e.g.:
-    #
-    # ""                -> /v1/projects
-    # "/{project_id}"   -> /v1/projects/{project_id}
-    #
-    # Reconstruct the full stable route
-    # template for audit history.
-
+    # expose only the child router's path.
     base = f"/v1/{domain}"
 
     if not local_path:
@@ -93,68 +96,53 @@ def _operation_path(
 
 def audit_request(
     request: Request,
-    db: Session = Depends(get_db),
-    auth: AuthContext = Depends(
-        require_api_key
-    ),
+    db: Db,
+    auth: Auth,
 ) -> Generator[None]:
-    try:
-        yield
+    yield
 
-    except Exception:
-        # Failed business operations are
-        # not recorded as successful events.
-        raise
+    if (
+        request.method
+        not in MUTATING_METHODS
+    ):
+        return
 
-    else:
-        if (
-            request.method
-            not in MUTATING_METHODS
-        ):
-            return
+    domain = _domain_from_request(
+        request
+    )
 
-        domain = _domain_from_request(
-            request
-        )
+    operation_path = _operation_path(
+        request,
+        domain,
+    )
 
-        operation_path = (
-            _operation_path(
-                request,
-                domain,
-            )
-        )
+    path_params = {
+        key: str(value)
+        for key, value
+        in request.path_params.items()
+    }
 
-        path_params = {
-            key: str(value)
-            for key, value
-            in request.path_params.items()
-        }
+    entity_id = _entity_id_from_params(
+        request.path_params
+    )
 
-        entity_id = (
-            _entity_id_from_params(
-                request.path_params
-            )
-        )
+    ActivityService(db).record(
+        actor_client_id=auth.client_id,
+        actor_name=auth.name,
+        domain=domain,
+        method=request.method,
+        operation=(
+            f"{request.method} "
+            f"{operation_path}"
+        ),
+        path=request.url.path,
+        entity_id=entity_id,
+        path_params=path_params,
+        request_id=getattr(
+            request.state,
+            "request_id",
+            None,
+        ),
+    )
 
-        ActivityService(db).record(
-            actor_client_id=(
-                auth.client_id
-            ),
-            actor_name=auth.name,
-            domain=domain,
-            method=request.method,
-            operation=(
-                f"{request.method} "
-                f"{operation_path}"
-            ),
-            path=request.url.path,
-            entity_id=entity_id,
-            path_params=path_params,
-            request_id=getattr(
-                request.state,
-                "request_id",
-                None,
-            ),
-        )
-
-        db.commit()
+    db.commit()

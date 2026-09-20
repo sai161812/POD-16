@@ -2,9 +2,9 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
-from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.skills.model import (
     LearningSession,
     Skill,
@@ -114,20 +114,19 @@ class SkillService:
 
         if (
             "slug" in changes
-            and changes["slug"]
-            != skill.slug
-        ):
-            if self.repo.get_by_slug(
+            and changes["slug"] != skill.slug
+            and self.repo.get_by_slug(
                 changes["slug"]
-            ):
-                raise AppError(
-                    code="skill_slug_conflict",
-                    message=(
-                        "A skill with this slug "
-                        "already exists."
-                    ),
-                    status_code=409,
-                )
+            )
+        ):
+            raise AppError(
+                code="skill_slug_conflict",
+                message=(
+                    "A skill with this slug "
+                    "already exists."
+                ),
+                status_code=409,
+            )
 
         if "metadata" in changes:
             changes["extra_metadata"] = (

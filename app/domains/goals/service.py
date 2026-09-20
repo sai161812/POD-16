@@ -4,9 +4,9 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.goals.enums import GoalStatus
 from app.domains.goals.model import Goal
-from app.core.patch import reject_null_fields
 from app.domains.goals.repository import (
     GoalRepository,
 )
@@ -17,6 +17,7 @@ from app.domains.goals.schemas import (
 from app.domains.projects.repository import (
     ProjectRepository,
 )
+
 
 class GoalService:
     def __init__(self, db: Session) -> None:
@@ -115,22 +116,15 @@ class GoalService:
         for field, value in changes.items():
             setattr(goal, field, value)
 
-        if (
-            goal.status == GoalStatus.COMPLETED
-            and previous_status
-            != GoalStatus.COMPLETED
-        ):
+        if goal.status == GoalStatus.COMPLETED:
             goal.progress_percent = 100
-            goal.completed_at = (
-                datetime.now().astimezone()
-            )
 
-        elif (
-            previous_status
-            == GoalStatus.COMPLETED
-            and goal.status
-            != GoalStatus.COMPLETED
-        ):
+            if goal.completed_at is None:
+                goal.completed_at = (
+                    datetime.now().astimezone()
+                )
+
+        elif previous_status == GoalStatus.COMPLETED:
             goal.completed_at = None
 
         self.db.commit()

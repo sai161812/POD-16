@@ -21,7 +21,6 @@ from app.domains.clients.service import (
     ApiClientService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

@@ -27,7 +27,6 @@ from app.domains.resources.service import (
     ResourceService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

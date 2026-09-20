@@ -5,11 +5,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.projects.enums import ProjectStatus
 from app.domains.projects.model import Project
 from app.domains.projects.repository import ProjectRepository
 from app.domains.projects.schemas import ProjectCreate, ProjectUpdate
-from app.core.patch import reject_null_fields
 
 
 class ProjectService:
@@ -17,7 +17,88 @@ class ProjectService:
         self.db = db
         self.repo = ProjectRepository(db)
 
+    def _validate_parent_project(
+        self,
+        *,
+        project_id: UUID | None,
+        parent_project_id: UUID | None,
+    ) -> None:
+        if parent_project_id is None:
+            return
+
+        parent = self.repo.get(
+            parent_project_id
+        )
+
+        if parent is None:
+            raise AppError(
+                code="parent_project_not_found",
+                message="Parent project not found.",
+                status_code=422,
+                details={
+                    "parent_project_id": str(
+                        parent_project_id
+                    ),
+                },
+            )
+
+        if (
+            project_id is not None
+            and project_id == parent_project_id
+        ):
+            raise AppError(
+                code="invalid_parent_project",
+                message=(
+                    "A project cannot be "
+                    "its own parent."
+                ),
+                status_code=422,
+            )
+
+        if project_id is None:
+            return
+
+        visited: set[UUID] = set()
+        current = parent
+
+        while current is not None:
+            if current.id == project_id:
+                raise AppError(
+                    code="project_parent_cycle",
+                    message=(
+                        "This parent assignment "
+                        "would create a project cycle."
+                    ),
+                    status_code=422,
+                )
+
+            if current.id in visited:
+                raise AppError(
+                    code="project_parent_cycle",
+                    message=(
+                        "The project hierarchy "
+                        "already contains a cycle."
+                    ),
+                    status_code=422,
+                )
+
+            visited.add(current.id)
+
+            if current.parent_project_id is None:
+                break
+
+            current = self.repo.get(
+                current.parent_project_id
+            )
+
     def create(self, payload: ProjectCreate) -> Project:
+        self._validate_parent_project(
+            project_id=None,
+            parent_project_id=(
+                payload.parent_project_id
+            ),
+        )
+
         if self.repo.get_by_slug(payload.slug):
             raise AppError(
                 code="project_slug_conflict",
@@ -29,6 +110,12 @@ class ProjectService:
         values = payload.model_dump()
         values["extra_metadata"] = values.pop("metadata")
         project = Project(**values)
+        if project.status == ProjectStatus.COMPLETED:
+            project.progress_percent = 100
+            project.completed_at = (
+                datetime.now().astimezone()
+            )
+            project.focus_rank = None
 
         try:
             self.repo.add(project)
@@ -77,6 +164,13 @@ class ProjectService:
                 "metadata",
             },
         )
+        if "parent_project_id" in changes:
+            self._validate_parent_project(
+                project_id=project.id,
+                parent_project_id=changes[
+                    "parent_project_id"
+                ],
+            )
 
         if "slug" in changes and changes["slug"] != project.slug:
             existing = self.repo.get_by_slug(changes["slug"])
@@ -90,17 +184,22 @@ class ProjectService:
         if "metadata" in changes:
             changes["extra_metadata"] = changes.pop("metadata")
 
+        previous_status = project.status
+
         for field, value in changes.items():
             setattr(project, field, value)
 
-        if "status" in changes:
-            if project.status == ProjectStatus.COMPLETED:
-                project.progress_percent = 100
-                project.completed_at = datetime.now().astimezone()
-                project.focus_rank = None
+        if project.status == ProjectStatus.COMPLETED:
+            project.progress_percent = 100
+            project.focus_rank = None
 
-            elif project.completed_at is not None:
-                project.completed_at = None
+            if project.completed_at is None:
+               project.completed_at = (
+                   datetime.now().astimezone()
+               )
+
+        elif previous_status == ProjectStatus.COMPLETED:
+           project.completed_at = None
 
         try:
             self.db.commit()

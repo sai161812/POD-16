@@ -9,6 +9,9 @@ from app.domains.activity.dependency import (
 from app.domains.activity.router import (
     router as activity_router,
 )
+from app.domains.attention.router import (
+    router as attention_router,
+)
 from app.domains.clients.router import (
     router as clients_router,
 )
@@ -30,6 +33,9 @@ from app.domains.projects.router import (
 from app.domains.resources.router import (
     router as resources_router,
 )
+from app.domains.rules.router import (
+    router as rules_router,
+)
 from app.domains.search.router import (
     router as search_router,
 )
@@ -39,13 +45,6 @@ from app.domains.skills.router import (
 from app.domains.tasks.router import (
     router as tasks_router,
 )
-from app.domains.rules.router import (
-    router as rules_router,
-)
-from app.domains.attention.router import (
-    router as attention_router,
-)
-
 
 api_router = APIRouter(
     dependencies=[

@@ -4,9 +4,9 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.notes.model import Note
 from app.domains.notes.repository import NoteRepository
-from app.core.patch import reject_null_fields
 from app.domains.notes.schemas import (
     NoteCreate,
     NoteUpdate,

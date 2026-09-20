@@ -54,7 +54,7 @@ class FocusRepository:
         attention_conditions = [
             Task.due_date <= today,
             (
-                (Task.due_at < end)
+                Task.due_at < end
             ),
             (
                 (Task.scheduled_for >= start)

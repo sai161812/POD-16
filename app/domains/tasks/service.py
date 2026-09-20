@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.projects.repository import ProjectRepository
 from app.domains.tasks.enums import (
     TaskPriority,
@@ -11,7 +12,6 @@ from app.domains.tasks.enums import (
 )
 from app.domains.tasks.model import Task
 from app.domains.tasks.repository import TaskRepository
-from app.core.patch import reject_null_fields
 from app.domains.tasks.schemas import (
     TaskCreate,
     TaskUpdate,

@@ -4,6 +4,8 @@ from uuid import UUID, uuid7
 from sqlalchemy import DateTime, String
 from sqlalchemy.dialects.postgresql import (
     ARRAY,
+)
+from sqlalchemy.dialects.postgresql import (
     UUID as PGUUID,
 )
 from sqlalchemy.orm import Mapped, mapped_column

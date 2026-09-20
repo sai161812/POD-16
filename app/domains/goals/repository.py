@@ -3,10 +3,11 @@ from uuid import UUID
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from app.core.query import contains_pattern
 from app.domains.goals.enums import GoalStatus
 from app.domains.goals.model import Goal, GoalProject
 from app.domains.projects.model import Project
-from app.core.query import contains_pattern
+
 
 class GoalRepository:
     def __init__(self, db: Session) -> None:

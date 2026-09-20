@@ -25,7 +25,6 @@ from app.domains.skills.service import (
     SkillService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

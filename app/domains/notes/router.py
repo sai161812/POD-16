@@ -19,7 +19,6 @@ from app.domains.notes.schemas import (
 )
 from app.domains.notes.service import NoteService
 
-
 router = APIRouter()
 
 Db = Annotated[

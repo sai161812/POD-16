@@ -7,7 +7,6 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-
 INSECURE_BOOTSTRAP_KEYS = {
     "change-me-before-deployment",
     "change-this-before-deployment",

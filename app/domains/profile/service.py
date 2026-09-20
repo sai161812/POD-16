@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.core.patch import reject_null_fields
 from app.domains.profile.model import (
     PersonalProfile,
 )
@@ -46,18 +47,27 @@ class ProfileService:
             exclude_unset=True
         )
 
+        reject_null_fields(
+            changes,
+            {
+                "timezone",
+                "locale",
+                "preferences",
+                "metadata",
+            },
+        )
+
         if "metadata" in changes:
             changes["extra_metadata"] = (
                 changes.pop("metadata")
             )
 
         for field, value in changes.items():
-            if value is not None:
-                setattr(
-                    profile,
-                    field,
-                    value,
-                )
+            setattr(
+                profile,
+                field,
+                value,
+            )
 
         self.db.commit()
         self.db.refresh(profile)

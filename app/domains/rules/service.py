@@ -2,9 +2,9 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
-from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.rules.enums import (
     RuleDomain,
 )
@@ -24,7 +24,6 @@ from app.domains.rules.schemas import (
     RuleCreate,
     RuleUpdate,
 )
-
 
 ALLOWED_FIELDS = {
     RuleDomain.TASK: {

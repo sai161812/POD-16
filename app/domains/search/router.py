@@ -15,7 +15,6 @@ from app.domains.search.service import (
     SearchService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

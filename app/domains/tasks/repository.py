@@ -4,9 +4,10 @@ from uuid import UUID
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from app.core.query import contains_pattern
 from app.domains.tasks.enums import TaskPriority, TaskStatus
 from app.domains.tasks.model import Task, TaskDependency
-from app.core.query import contains_pattern
+
 
 class TaskRepository:
     def __init__(self, db: Session) -> None:

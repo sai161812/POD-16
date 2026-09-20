@@ -1,11 +1,13 @@
-from datetime import date
+from app.domains.tasks.time import (
+    today_local,
+)
 
 
 def test_core_personal_workflow(
     client,
     auth_headers,
 ):
-    today = date.today().isoformat()
+    today = today_local().isoformat()
 
     # ----------------------------
     # Project

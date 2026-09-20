@@ -17,7 +17,6 @@ from app.domains.activity.service import (
     ActivityService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

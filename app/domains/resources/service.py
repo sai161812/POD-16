@@ -2,9 +2,9 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
-from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
+from app.core.patch import reject_null_fields
 from app.domains.resources.enums import (
     ResourceStatus,
 )
@@ -136,19 +136,17 @@ class ResourceService:
         if (
             resource.status
             == ResourceStatus.COMPLETED
-            and previous_status
-            != ResourceStatus.COMPLETED
         ):
             resource.progress_percent = 100
-            resource.completed_at = (
-                datetime.now().astimezone()
-            )
+
+            if resource.completed_at is None:
+                resource.completed_at = (
+                    datetime.now().astimezone()
+                )
 
         elif (
             previous_status
             == ResourceStatus.COMPLETED
-            and resource.status
-            != ResourceStatus.COMPLETED
         ):
             resource.completed_at = None
 

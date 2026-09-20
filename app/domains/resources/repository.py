@@ -1,11 +1,12 @@
 from uuid import UUID
-from app.core.query import contains_pattern
+
 from sqlalchemy import (
     or_,
     select,
 )
 from sqlalchemy.orm import Session
 
+from app.core.query import contains_pattern
 from app.domains.resources.enums import (
     ResourceStatus,
     ResourceType,

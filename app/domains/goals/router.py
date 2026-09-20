@@ -14,14 +14,13 @@ from app.db.session import get_db
 from app.domains.goals.enums import GoalStatus
 from app.domains.goals.schemas import (
     GoalCreate,
+    GoalLinkedProjectListResponse,
+    GoalLinkedProjectRead,
     GoalListResponse,
     GoalRead,
     GoalUpdate,
-    GoalLinkedProjectListResponse,
-    GoalLinkedProjectRead,
 )
 from app.domains.goals.service import GoalService
-
 
 router = APIRouter()
 

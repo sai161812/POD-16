@@ -14,7 +14,6 @@ from app.domains.focus.service import (
     FocusService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

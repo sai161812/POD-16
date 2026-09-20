@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import (
     BaseModel,
     Field,
     field_validator,
 )
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 class ProfileUpdate(BaseModel):

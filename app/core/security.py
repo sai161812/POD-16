@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from hashlib import sha256
 from secrets import compare_digest
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, Request
@@ -17,7 +18,6 @@ from app.db.session import get_db
 from app.domains.clients.repository import (
     ApiClientRepository,
 )
-
 
 bearer_scheme = HTTPBearer(
     auto_error=False,
@@ -35,6 +35,17 @@ class AuthContext:
     name: str
     scopes: frozenset[str]
     bootstrap: bool
+
+
+Db = Annotated[
+    Session,
+    Depends(get_db),
+]
+
+Credentials = Annotated[
+    HTTPAuthorizationCredentials | None,
+    Depends(bearer_scheme),
+]
 
 
 def _hash_api_key(
@@ -71,9 +82,8 @@ def _required_scope(
 
 def require_api_key(
     request: Request,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials
-    | None = Depends(bearer_scheme),
+    db: Db,
+    credentials: Credentials,
 ) -> AuthContext:
     if (
         credentials is None
@@ -160,7 +170,7 @@ def require_api_key(
         )
 
     client.last_used_at = datetime.now(
-        timezone.utc
+        UTC
     )
 
     db.commit()

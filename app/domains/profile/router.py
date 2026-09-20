@@ -15,7 +15,6 @@ from app.domains.profile.service import (
     ProfileService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[

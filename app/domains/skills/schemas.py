@@ -10,7 +10,6 @@ from pydantic import (
     model_validator,
 )
 
-
 SLUG_RE = re.compile(
     r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
 )

@@ -1,5 +1,5 @@
 from uuid import UUID
-from app.core.query import contains_pattern
+
 from sqlalchemy import (
     func,
     or_,
@@ -7,6 +7,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session
 
+from app.core.query import contains_pattern
 from app.domains.skills.model import (
     LearningSession,
     Skill,

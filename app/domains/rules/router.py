@@ -27,7 +27,6 @@ from app.domains.rules.service import (
     RuleService,
 )
 
-
 router = APIRouter()
 
 Db = Annotated[
