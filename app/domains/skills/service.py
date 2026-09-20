@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
+from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
 from app.domains.skills.model import (
@@ -100,6 +101,16 @@ class SkillService:
         changes = payload.model_dump(
             exclude_unset=True
         )
+        reject_null_fields(
+            changes,
+            {
+                "name",
+                "slug",
+                "current_level",
+                "target_level",
+                "metadata",
+            },
+            )
 
         if (
             "slug" in changes

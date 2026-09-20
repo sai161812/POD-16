@@ -11,6 +11,7 @@ from app.domains.tasks.enums import (
 )
 from app.domains.tasks.model import Task
 from app.domains.tasks.repository import TaskRepository
+from app.core.patch import reject_null_fields
 from app.domains.tasks.schemas import (
     TaskCreate,
     TaskUpdate,
@@ -216,6 +217,15 @@ class TaskService:
 
         changes = payload.model_dump(
             exclude_unset=True
+        )
+        reject_null_fields(
+            changes,
+            {
+                "title",
+                "status",
+                "priority",
+                "metadata",
+            },
         )
 
         if "project_id" in changes:

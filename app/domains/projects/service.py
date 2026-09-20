@@ -9,6 +9,7 @@ from app.domains.projects.enums import ProjectStatus
 from app.domains.projects.model import Project
 from app.domains.projects.repository import ProjectRepository
 from app.domains.projects.schemas import ProjectCreate, ProjectUpdate
+from app.core.patch import reject_null_fields
 
 
 class ProjectService:
@@ -66,6 +67,16 @@ class ProjectService:
     def update(self, project_id: UUID, payload: ProjectUpdate) -> Project:
         project = self.get(project_id)
         changes = payload.model_dump(exclude_unset=True)
+        reject_null_fields(
+            changes,
+            {
+                "name",
+                "slug",
+                "status",
+                "priority",
+                "metadata",
+            },
+        )
 
         if "slug" in changes and changes["slug"] != project.slug:
             existing = self.repo.get_by_slug(changes["slug"])

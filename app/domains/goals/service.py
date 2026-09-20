@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError
 from app.domains.goals.enums import GoalStatus
 from app.domains.goals.model import Goal
+from app.core.patch import reject_null_fields
 from app.domains.goals.repository import (
     GoalRepository,
 )
@@ -93,6 +94,15 @@ class GoalService:
 
         changes = payload.model_dump(
             exclude_unset=True
+        )
+        reject_null_fields(
+            changes,
+            {
+                "title",
+                "status",
+                "progress_percent",
+                "metadata",
+            },
         )
 
         if "metadata" in changes:

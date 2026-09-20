@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
+from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
 from app.domains.resources.enums import (
@@ -106,6 +107,16 @@ class ResourceService:
 
         changes = payload.model_dump(
             exclude_unset=True
+        )
+        reject_null_fields(
+            changes,
+            {
+                "title",
+                "resource_type",
+                "status",
+                "progress_percent",
+                "metadata",
+            },
         )
 
         if "metadata" in changes:

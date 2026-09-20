@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import AppError
 from app.domains.notes.model import Note
 from app.domains.notes.repository import NoteRepository
+from app.core.patch import reject_null_fields
 from app.domains.notes.schemas import (
     NoteCreate,
     NoteUpdate,
@@ -103,6 +104,14 @@ class NoteService:
 
         changes = payload.model_dump(
             exclude_unset=True
+        )
+        reject_null_fields(
+            changes,
+            {
+                "title",
+                "content",
+                "metadata",
+            },
         )
 
         if "project_id" in changes:

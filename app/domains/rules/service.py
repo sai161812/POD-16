@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
+from app.core.patch import reject_null_fields
 
 from app.core.errors import AppError
 from app.domains.rules.enums import (
@@ -229,6 +230,17 @@ class RuleService:
 
         changes = payload.model_dump(
             exclude_unset=True
+        )
+        reject_null_fields(
+            changes,
+            {
+                "name",
+                "domain",
+                "match_mode",
+                "conditions",
+                "effects",
+                "enabled",
+            },
         )
 
         if "conditions" in changes:
