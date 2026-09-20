@@ -22,6 +22,10 @@ from app.domains.resources.model import (
 from app.domains.activity.model import (
     ActivityEvent,
 )  # noqa: F401
+from app.domains.rules.model import (
+    Rule,
+)  # noqa: F401
+
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

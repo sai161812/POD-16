@@ -39,6 +39,9 @@ from app.domains.skills.router import (
 from app.domains.tasks.router import (
     router as tasks_router,
 )
+from app.domains.rules.router import (
+    router as rules_router,
+)
 
 
 api_router = APIRouter(
@@ -112,4 +115,9 @@ api_router.include_router(
     activity_router,
     prefix="/activity",
     tags=["activity"],
+)
+api_router.include_router(
+    rules_router,
+    prefix="/rules",
+    tags=["rules"],
 )

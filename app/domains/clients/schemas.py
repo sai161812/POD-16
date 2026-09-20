@@ -27,6 +27,8 @@ ALLOWED_SCOPES = {
     "resources:read",
     "resources:write",
     "activity:read",
+    "rules:read",
+    "rules:write",
     "*",
 }
 
