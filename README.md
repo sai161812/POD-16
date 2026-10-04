@@ -790,6 +790,19 @@ Authorization: Bearer <API_KEY>
 
 ---
 
+### Run the full stack in Docker
+
+After creating `.env`, run from the repository root:
+
+```bash
+docker compose up -d --build api
+docker compose logs -f api
+```
+
+Compose starts PostgreSQL, waits for its health check, applies migrations, then starts the API. Both database and API ports bind to `127.0.0.1`. The container uses `db` as its database hostname; the host-run API uses the localhost URL in `.env`. Do not start the host-run API and container API on port 8000 at the same time.
+
+Stop the stack with `docker compose down`. The named PostgreSQL volume remains available for the next start; adding `--volumes` deletes that stored database.
+
 ## Configuration
 
 POD-16 uses environment variables prefixed with `POD16_`.
@@ -840,11 +853,16 @@ Normal service/router behaviour changes do not require migrations.
 
 The test suite uses `pytest` and FastAPI's test client.
 
-Run everything:
+The database fixtures connect to the configured PostgreSQL engine; they do not create or migrate a database. Before running the suite on a fresh checkout, install dependencies, start PostgreSQL and apply migrations:
 
 ```bash
+uv sync
+docker compose up -d db
+uv run alembic upgrade head
 uv run pytest -q
 ```
+
+Use a disposable development/test database in `POD16_DATABASE_URL`, not a database containing important personal records.
 
 Tests cover behaviour including:
 
