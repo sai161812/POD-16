@@ -53,3 +53,8 @@ def test_production_accepts_strong_key():
     )
 
     assert settings.env == "production"
+
+@pytest.mark.parametrize("key", ["", " " * 32, "é" * 32, "key with spaces", "key\nvalue"])
+def test_rejects_keys_that_cannot_be_used_as_bearer_tokens(key):
+    with pytest.raises(ValidationError, match="non-empty ASCII"):
+        Settings(_env_file=None, env="development", bootstrap_api_key=key)

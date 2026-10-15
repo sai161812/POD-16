@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict,
@@ -40,6 +40,13 @@ class Settings(BaseSettings):
         env_prefix="POD16_",
         extra="ignore",
     )
+
+    @field_validator("bootstrap_api_key")
+    @classmethod
+    def validate_bootstrap_key_format(cls, value: str) -> str:
+        if not value or not value.isascii() or any(char.isspace() for char in value):
+            raise ValueError("Bootstrap API key must be non-empty ASCII without whitespace.")
+        return value
 
     @model_validator(mode="after")
     def validate_production_security(
