@@ -103,8 +103,8 @@ def require_api_key(
     # Bootstrap key remains the emergency /
     # administrative super-key.
     if compare_digest(
-        presented_key,
-        settings.bootstrap_api_key,
+        presented_key.encode("utf-8"),
+        settings.bootstrap_api_key.encode("utf-8"),
     ):
         context = AuthContext(
             client_id=None,
