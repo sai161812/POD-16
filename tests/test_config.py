@@ -58,3 +58,14 @@ def test_production_accepts_strong_key():
 def test_rejects_keys_that_cannot_be_used_as_bearer_tokens(key):
     with pytest.raises(ValidationError, match="non-empty ASCII"):
         Settings(_env_file=None, env="development", bootstrap_api_key=key)
+
+
+@pytest.mark.parametrize("timezone", ["", "Mars/Olympus_Mons", "../UTC", "/etc/passwd"])
+def test_rejects_unavailable_timezones_at_configuration_load(timezone):
+    with pytest.raises(ValidationError, match="IANA timezone"):
+        Settings(_env_file=None, timezone=timezone)
+
+
+@pytest.mark.parametrize("timezone", ["UTC", "Asia/Kolkata", "America/New_York"])
+def test_accepts_available_timezones(timezone):
+    assert Settings(_env_file=None, timezone=timezone).timezone == timezone

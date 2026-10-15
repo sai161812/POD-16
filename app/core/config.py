@@ -1,5 +1,6 @@
 from functools import lru_cache
 from typing import Literal
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import (
@@ -40,6 +41,15 @@ class Settings(BaseSettings):
         env_prefix="POD16_",
         extra="ignore",
     )
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        try:
+            ZoneInfo(value)
+        except (ZoneInfoNotFoundError, ValueError) as error:
+            raise ValueError("Timezone must be an available IANA timezone name.") from error
+        return value
 
     @field_validator("bootstrap_api_key")
     @classmethod
